@@ -1,15 +1,16 @@
 package handler
 
 import (
-	"net/http"
+	"fmt"
 	"github/tronglv_authen_author/helper/server/http/handler"
 	"github/tronglv_authen_author/internal/registry"
+	"net/http"
 
 	"github.com/zeromicro/go-zero/rest"
 )
 
 const (
-	BasePrefix = "/upload-svc"
+	BasePrefix = "/identity-svc"
 	RestPrefix = BasePrefix + "/api/v1"
 )
 
@@ -23,19 +24,39 @@ func NewRestHandler(svc *registry.ServiceContext) RestHandler {
 
 func (h RestHandler) Register(svr *rest.Server) {
 	handler.RegisterSwaggerHandler(svr, BasePrefix)
-	registerUploadHandler(svr, h.svc)
+	globalMiddleware(svr, h.svc)
+	registerOAuthHandler(svr, h.svc)
 }
-func registerUploadHandler(svr *rest.Server, svc *registry.ServiceContext) {
-	h := NewUploadHandler(svc)
-	var path = "/uploadS3"
+
+func globalMiddleware(_ *rest.Server, _ *registry.ServiceContext) {
+}
+
+func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
+	h := NewOAuthHandler(svc)
+	var path = "/oauth"
 	svr.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    path,
-					Handler: h.UploadFileS3(),
+					Path:    fmt.Sprintf("%s/portal-authorize", path),
+					Handler: h.PortalAuthorize(),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/portal-token", path),
+					Handler: h.PortalToken(),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/portal-token", path),
+					Handler: h.PortalToken(),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/token", path),
+					Handler: h.Token(),
 				},
 			}...,
 		),

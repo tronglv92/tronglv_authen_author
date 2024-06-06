@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package pmc.inapp.identity.authorization;
+
+
+
+option go_package = "github/tronglv_authen_author/api/authorization";
+
+service Authorization {
+  rpc Permissions(PermissionListReq) returns (PermissionListResp);
+  rpc Permission(PermissionReq) returns (PermissionResp);
+  rpc PermissionByCode(PermissionByCodeReq) returns (PermissionResp);
+}
+
+message PermissionListReq {
+  int32 service_id = 1 [ json_name = "service_id" ];
+  string client_uid = 2 [ json_name = "client_uid" ];
+  string employee_id = 3 [ json_name = "employee_id" ];
+}
+
+message PermissionListResp {
+  repeated PermissionItem permissions = 1 [ json_name = "permissions" ];
+}
+
+message PermissionItem {
+  int32 id = 1 [ json_name = "id" ];
+  int32 service_id = 2 [ json_name = "service_id" ];
+  string code = 3 [ json_name = "code" ];
+  string path = 4 [ json_name = "path" ];
+  string method = 5 [ json_name = "method" ];
+}
+
+message PermissionReq {
+  int32 service_id = 1 [ json_name = "service_id" ];
+  string path = 2 [ json_name = "path" ];
+  string method = 3 [ json_name = "method" ];
+}
+
+message PermissionResp {
+  PermissionItem permission = 1 [ json_name = "permission" ];
+}
+
+message PermissionByCodeReq {
+  int32 service_id = 1 [ json_name = "service_id" ];
+  string code = 2 [ json_name = "code" ];
+}

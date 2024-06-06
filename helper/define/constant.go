@@ -10,4 +10,5 @@ const (
 	UniqueConstraintFailed = "unique constraint"
 	ClientIssuer           = "client"
 	UserIssuer             = "user"
+	AuthDataContextKey     = "Auth-Data"
 )

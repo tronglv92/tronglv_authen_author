@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package pmc.inapp.identity.authorization;
+
+option go_package = "github/tronglv_authen_author/api/authentication";
+
+service Authentication {
+  rpc Validate(TokenAuthReq) returns (TokenAuthResp);
+  rpc ClientToken(ClientAuthReq) returns (ClientAuthResp);
+  rpc EcomToken(ClientAuthReq) returns (EcomAuthResp);
+  rpc UserToken(UserAuthReq) returns (UserAuthResp);
+}
+
+message TokenAuthReq { string issuer = 1; }
+
+message TokenAuthResp {
+  UserData user = 1 [ json_name = "user" ];
+  ClientData client = 2 [ json_name = "client" ];
+}
+
+message UserData {
+  int32 id = 1 [ json_name = "id" ];
+  string email = 2 [ json_name = "email" ];
+  string employee_id = 3 [ json_name = "employee_id" ];
+  string name = 4 [ json_name = "name" ];
+  string avatar = 5 [ json_name = "avatar" ];
+  string department = 6 [ json_name = "department" ];
+  string rank = 7 [ json_name = "rank" ];
+  string position = 8 [ json_name = "position" ];
+  string work_place = 9 [ json_name = "work_place" ];
+  string phone = 10 [ json_name = "phone" ];
+  int32 gender = 11 [ json_name = "gender" ];
+  repeated string roles = 12 [ json_name = "roles" ];
+}
+
+message ClientData {
+  int32 id = 1 [ json_name = "id" ];
+  string uid = 2 [ json_name = "uid" ];
+  string name = 3 [ json_name = "name" ];
+  repeated string scopes = 4 [ json_name = "scopes" ];
+}
+
+message ClientAuthReq {
+  string grant_type = 1 [ json_name = "grant_type" ];
+  string client_id = 2 [ json_name = "client_id" ];
+  string client_secret = 3 [ json_name = "client_secret" ];
+}
+
+message ClientAuthResp {}
+
+message EcomAuthResp {}
+
+message UserAuthReq {}
+
+message UserAuthResp {}
