@@ -3,14 +3,31 @@ package fosite
 import (
 	"context"
 	"fmt"
+
 	"github/tronglv_authen_author/helper/server/http/response"
+	"github/tronglv_authen_author/helper/util"
 	"net/http"
 
-	
 	"github.com/ory/fosite"
+	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/text/language"
 )
 
+type AuthorizeResp struct {
+	Debug       bool   `json:"-"`
+	ErrorCode   string `json:"error,omitempty"`
+	ErrorDesc   string `json:"error_description,omitempty"`
+	RedirectUrl string `json:"redirect_url,omitempty"`
+}
+
+func (r AuthorizeResp) Error() string {
+	if r.Debug {
+		return r.ErrorDesc
+	} else {
+		logx.Errorf(r.ErrorDesc)
+	}
+	return r.ErrorCode
+}
 func getLangFromRequester(requester fosite.Requester) language.Tag {
 	lang := language.English
 	g11nContext, ok := requester.(fosite.G11NContext)

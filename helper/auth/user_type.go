@@ -1,6 +1,21 @@
 package auth
 
-import "slices"
+import (
+	"slices"
+
+	"github/tronglv_authen_author/helper/util/token"
+)
+
+func ParseUser(t, secretKey string) (UserData, error) {
+	user, err := token.NewTokenParser(token.WithSecretKey(secretKey)).Parse(t)
+	if err != nil {
+		return nil, err
+	}
+	return &userData{
+		Id:   int32(user.GetInt("sub")),
+		Name: user.GetString("name"),
+	}, nil
+}
 
 type UserData interface {
 	GetId() int32

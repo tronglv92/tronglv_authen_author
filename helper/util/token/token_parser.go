@@ -27,6 +27,12 @@ func NewTokenParser(opts ...ParseOption) *TokenParser {
 	return parser
 }
 
+func WithSecretKey(key string) ParseOption {
+	return func(parser *TokenParser) {
+		parser.secretKey = []byte(key)
+	}
+}
+
 func WithPublicKey(key string) ParseOption {
 	return func(parser *TokenParser) {
 		publicKey, err := base64.StdEncoding.DecodeString(key)
@@ -51,4 +57,16 @@ func (tp *TokenParser) Parse(token string) (*MapClaims, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 	return &MapClaims{t.Claims.(jwt.MapClaims)}, nil
+}
+
+func (tp *TokenParser) ParseUnverified(token string) (*MapClaims, error) {
+	t, _, err := new(jwt.Parser).ParseUnverified(token, jwt.MapClaims{})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := t.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("invalid JWT token format")
+	}
+	return &MapClaims{claims}, nil
 }

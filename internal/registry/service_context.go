@@ -11,8 +11,9 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
-	Fosite fosite.OAuth2Provider
+	Config      config.Config
+	Fosite      fosite.OAuth2Provider
+	CacheClient cache.Cache
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -24,7 +25,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	)
 
 	return &ServiceContext{
-		Config: c,
-		Fosite: NewFositeContext(c.OAuth, sqlConn, cacheClient),
+		Config:      c,
+		Fosite:      NewFositeContext(c.OAuth, sqlConn, cacheClient),
+		CacheClient: cacheClient,
 	}
 }

@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/ory/fosite"
 	"github/tronglv_authen_author/internal/registry"
 	"github/tronglv_authen_author/internal/service"
 	fs "github/tronglv_authen_author/internal/types/fosite"
 	"net/http"
+
+	"github.com/ory/fosite"
 )
 
 type OAuthHandler interface {

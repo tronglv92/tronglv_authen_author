@@ -13,3 +13,7 @@ func GetAuthData(ctx context.Context) (AuthData, error) {
 	}
 	return data, nil
 }
+
+func SetAuthDataToContext(ctx context.Context, u AuthData) context.Context {
+	return context.WithValue(ctx, define.AuthDataContextKey, u)
+}
