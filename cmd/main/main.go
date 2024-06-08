@@ -7,6 +7,7 @@ import (
 	"github/tronglv_authen_author/internal/config"
 	"github/tronglv_authen_author/internal/handler"
 	"github/tronglv_authen_author/internal/registry"
+	isvc "github/tronglv_authen_author/internal/server"
 
 	"github.com/zeromicro/go-zero/core/service"
 )
@@ -17,10 +18,12 @@ func main() {
 	c := config.Load(configFile)
 	svcGroup := service.NewServiceGroup()
 
+	svcGroup.Add(server.NewGrpcServer(c.Server,
+		isvc.NewGrpcHandler(registry.NewServiceContext(c)),
+	))
 	svcGroup.Add(server.NewHttpServer(c.Server,
 		handler.NewRestHandler(registry.NewServiceContext(c)),
 	))
-
 	defer svcGroup.Stop()
 	fmt.Printf("Starting server at %s:%d...\n", c.Server.Http.Host, c.Server.Http.Port)
 	svcGroup.Start()

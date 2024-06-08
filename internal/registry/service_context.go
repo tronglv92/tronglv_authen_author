@@ -5,15 +5,18 @@ import (
 	db "github/tronglv_authen_author/helper/database"
 
 	"github/tronglv_authen_author/internal/config"
+	rp "github/tronglv_authen_author/internal/repository"
 	"github/tronglv_authen_author/internal/types/entity"
 
 	"github.com/ory/fosite"
 )
 
 type ServiceContext struct {
-	Config      config.Config
-	Fosite      fosite.OAuth2Provider
-	CacheClient cache.Cache
+	Config         config.Config
+	Fosite         fosite.OAuth2Provider
+	CacheClient    cache.Cache
+	ClientRepo     rp.ClientRepository
+	PermissionRepo rp.PermissionRepository
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -25,8 +28,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	)
 
 	return &ServiceContext{
-		Config:      c,
-		Fosite:      NewFositeContext(c.OAuth, sqlConn, cacheClient),
-		CacheClient: cacheClient,
+		Config:         c,
+		Fosite:         NewFositeContext(c.OAuth, sqlConn, cacheClient),
+		CacheClient:    cacheClient,
+		ClientRepo:     rp.NewClientRepository(sqlConn),
+		PermissionRepo: rp.NewPermissionRepository(sqlConn),
 	}
 }

@@ -1,0 +1,51 @@
+version: '3.5'
+
+services:
+#  # App Service
+#  app:
+#    # Configuration for building the docker image for the service
+#    build:
+#      context: ./ # Use an image built from the specified dockerfile in docker folder
+#      dockerfile: docker/Dockerfile
+#    ports:
+#      - "8000:8000" # Forward the exposed port 5600 on the container to port 5600 on the host machine
+#    depends_on:
+#      - db
+#    restart: unless-stopped
+#    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+#      - microservice
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: inapp_user
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: inapp_boilerplate
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres # volume to bind
+    ports:
+      - "5433:5432"
+    networks:
+      - microservice # Join microservice network
+    restart: unless-stopped
+
+  cache:
+    image: redis:6.2-alpine
+    environment:
+      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data/redis
+
+networks:
+  microservice:
+    driver: bridge
+
+volumes:
+  db:
+    driver: local
+  cache:
+    driver: local

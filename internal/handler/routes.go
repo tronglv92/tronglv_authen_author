@@ -43,21 +43,7 @@ func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
 					Path:    fmt.Sprintf("%s/portal-authorize", path),
 					Handler: h.PortalAuthorize(),
 				},
-				{
-					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/portal-token", path),
-					Handler: h.PortalToken(),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/portal-token", path),
-					Handler: h.PortalToken(),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/token", path),
-					Handler: h.Token(),
-				},
+				
 			}...,
 		),
 		rest.WithPrefix(RestPrefix),

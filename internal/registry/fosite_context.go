@@ -7,8 +7,9 @@ import (
 	db "github/tronglv_authen_author/helper/database"
 	"github/tronglv_authen_author/helper/rsa"
 	"github/tronglv_authen_author/internal/config"
-	"time"
 	fs "github/tronglv_authen_author/internal/types/fosite"
+	"time"
+
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/compose"
 
@@ -32,6 +33,7 @@ func NewFositeContext(c config.OAuthConfig, sqlConn db.Database, cacheClient cac
 		}
 		return privateKey, nil
 	}
+
 	return compose.Compose(
 		conf,
 		fs.NewGormStore(sqlConn, cacheClient),
