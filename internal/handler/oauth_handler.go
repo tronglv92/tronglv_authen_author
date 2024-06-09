@@ -36,13 +36,21 @@ func (p *oauthHandler) PortalAuthorize() http.HandlerFunc {
 		ctx := r.Context()
 
 		ar, err := p.fs.NewAuthorizeRequest(ctx, r)
-		// logx.Error("vao trong nay", err)
+
 		if err != nil {
-			fmt.Println("vao trong nay 123")
+			fmt.Println("PortalAuthorize err", err)
 			fosite.WriteAuthorizeError(ctx, p.fs, w, ar, err)
 			return
 		}
-		response.OkJson(ctx, w, "Success", nil)
+
+		s := new(fosite.PortalSession)
+		resp, err := p.fs.NewAuthorizeResponse(ctx, ar, s)
+		if err != nil {
+			fosite.WriteAuthorizeError(ctx, p.fs, w, ar, err)
+			return
+		}
+		redirectUrl := fmt.Sprintf("%s?%s", ar.GetRedirectURI().String(), resp.GetParameters().Encode())
+		response.OkJson(ctx, w, fosite.AuthorizeResp{RedirectUrl: redirectUrl}, nil)
 	}
 }
 

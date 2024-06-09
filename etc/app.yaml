@@ -1,7 +1,7 @@
 server:
-  env: '${SERVER_ENV}'
+  env: "${SERVER_ENV}"
   grpc:
-    name: '${SERVICE_NAME}'
+    name: "${SERVICE_NAME}"
     ListenOn: 0.0.0.0:8001
     middlewares:
       stat: false
@@ -9,11 +9,11 @@ server:
       shedding: false
       breaker: false
     telemetry:
-      name: 'inapp-${SERVICE_NAME}'
-      endpoint: '${TELEMETRY_ENDPOINT}'
+      name: "inapp-${SERVICE_NAME}"
+      endpoint: "${TELEMETRY_ENDPOINT}"
       batcher: otlpgrpc
   http:
-    name: '${SERVICE_NAME}'
+    name: "${SERVICE_NAME}"
     host: 0.0.0.0
     port: ${SERVER_PORT}
     timeout: 30000
@@ -22,27 +22,28 @@ server:
       metrics: false
       shedding: false
     telemetry:
-      name: 'inapp-${SERVICE_NAME}'
-      endpoint: '${TELEMETRY_ENDPOINT}'
+      name: "inapp-${SERVICE_NAME}"
+      endpoint: "${TELEMETRY_ENDPOINT}"
       batcher: otlpgrpc
 
 database:
-  driver: '${DB_DRIVER}'
-  host: '${DB_HOST}'
+  driver: "${DB_DRIVER}"
+  host: "${DB_HOST}"
   port: ${DB_PORT}
-  username: '${DB_USERNAME}'
-  password: '${DB_PASSWORD}'
-  name: '${DB_NAME}'
-  schema-name: '${DB_SCHEMA_NAME}'
+  username: "${DB_USERNAME}"
+  password: "${DB_PASSWORD}"
+  name: "${DB_NAME}"
+  schema-name: "${DB_SCHEMA_NAME}"
 
 cache:
   stack: redis
   redis:
-    host: '${REDIS_HOST}'
-    pass: '${REDIS_PASSWORD}'
+    host: "${REDIS_HOST}"
+    pass: "${REDIS_PASSWORD}"
     db: ${REDIS_DB}
-  
+
 oauth:
   debug: ${OAUTH_DEBUG}
-  hash-secret: '${OAUTH_HASH_SECRET}'
-  private-key: '${OAUTH_PRIVATE_KEY}'
+  hash-secret: "${OAUTH_HASH_SECRET}"
+  private-key: "${OAUTH_PRIVATE_KEY}"
+  public-key: "${OAUTH_PUBLIC_KEY}"

@@ -7,6 +7,7 @@ import (
 	"github/tronglv_authen_author/helper/auth"
 	"github/tronglv_authen_author/helper/cache"
 	db "github/tronglv_authen_author/helper/database"
+	"github/tronglv_authen_author/helper/define"
 	"github/tronglv_authen_author/helper/util"
 	rp "github/tronglv_authen_author/internal/repository"
 	"github/tronglv_authen_author/internal/types/entity"
@@ -44,14 +45,14 @@ func NewGormStore(sqlConn db.Database, cacheClient cache.Cache) fosite.Storage {
 }
 func (s *gormStorage) GetClient(ctx context.Context, clientId string) (fosite.Client, error) {
 	fmt.Println("GetClient")
-	// client, err := s.clientRepo.First(ctx, s.clientRepo.WithClientId(clientId))
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if client.Status != int(define.ActiveStatus) {
-	// 	return nil, fmt.Errorf("the client account is inactive")
-	// }
-	return nil, nil
+	client, err := s.clientRepo.First(ctx, s.clientRepo.WithClientId(clientId))
+	if err != nil {
+		return nil, err
+	}
+	if client.Status != int(define.ActiveStatus) {
+		return nil, fmt.Errorf("the client account is inactive")
+	}
+	return client, nil
 }
 
 func (s *gormStorage) ClientAssertionJWTValid(ctx context.Context, jti string) error {

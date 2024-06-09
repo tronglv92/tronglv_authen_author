@@ -4,6 +4,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/ory/fosite"
 )
+
 type Client struct {
 	IDModel
 	Name             string         `gorm:"column:name;type:varchar(100)"`

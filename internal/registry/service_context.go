@@ -17,6 +17,7 @@ type ServiceContext struct {
 	CacheClient    cache.Cache
 	ClientRepo     rp.ClientRepository
 	PermissionRepo rp.PermissionRepository
+	ClientRoleRepo     rp.ClientRoleRepository
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -33,5 +34,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		CacheClient:    cacheClient,
 		ClientRepo:     rp.NewClientRepository(sqlConn),
 		PermissionRepo: rp.NewPermissionRepository(sqlConn),
+		ClientRoleRepo:     rp.NewClientRoleRepository(sqlConn),
 	}
 }

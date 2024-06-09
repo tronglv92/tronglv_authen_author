@@ -3,11 +3,12 @@ package fosite
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mohae/deepcopy"
 	"github.com/ory/fosite"
 	"golang.org/x/oauth2"
-	"time"
 )
 
 type PortalSession struct {
