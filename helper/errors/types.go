@@ -1,8 +1,8 @@
 package errors
 
 import (
-	"net/http"
 	"github/tronglv_authen_author/helper/locale"
+	"net/http"
 )
 
 const (
@@ -25,7 +25,9 @@ type Error interface {
 func BadRequest(err error, opts ...Option) Error {
 	return New(http.StatusBadRequest, err, opts...)
 }
-
+func Unauthorized(err error, opts ...Option) Error {
+	return New(http.StatusUnauthorized, err, opts...)
+}
 func InternalServerReason(reason string, opts ...Option) Error {
 	return Newf(http.StatusInternalServerError, reason, opts...)
 }

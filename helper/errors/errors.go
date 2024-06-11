@@ -121,3 +121,9 @@ func WithMetas(keyvals ...string) Option {
 		f.Metadata = metas
 	}
 }
+
+func WithReason(reason string) Option {
+	return func(f *errorSvc) {
+		f.Reason = reason
+	}
+}

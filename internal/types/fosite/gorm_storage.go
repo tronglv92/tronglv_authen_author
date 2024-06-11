@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github/tronglv_authen_author/helper/auth"
 	"github/tronglv_authen_author/helper/cache"
 	db "github/tronglv_authen_author/helper/database"
 	"github/tronglv_authen_author/helper/define"
@@ -117,40 +116,40 @@ func (s *gormStorage) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, re
 
 func (s *gormStorage) CreateAuthorizeCodeSession(ctx context.Context, code string, request fosite.Requester) error {
 	fmt.Println("CreateAuthorizeCodeSession")
-	info, err := auth.GetAuthData(ctx)
-	if err != nil {
-		return err
-	}
+	// info, err := auth.GetAuthData(ctx)
+	// if err != nil {
+	// 	return err
+	// }
 
-	client := request.GetClient()
-	eClient, ok := client.(*entity.Client)
-	if !ok {
-		return fmt.Errorf("the client context unknown")
-	}
+	// client := request.GetClient()
+	// eClient, ok := client.(*entity.Client)
+	// if !ok {
+	// 	return fmt.Errorf("the client context unknown")
+	// }
 
-	eSession, ok := request.GetSession().(*PortalSession)
-	if !ok {
-		return fmt.Errorf("the portal session context unknown")
-	}
-	if err := eSession.SetToken(info.GetToken()); err != nil {
-		return err
-	}
+	// eSession, ok := request.GetSession().(*PortalSession)
+	// if !ok {
+	// 	return fmt.Errorf("the portal session context unknown")
+	// }
+	// if err := eSession.SetToken(info.GetToken()); err != nil {
+	// 	return err
+	// }
 
-	authorizeCode := AuthorizeCode{
-		ID:                request.GetID(),
-		RequestedAt:       request.GetRequestedAt(),
-		Client:            eClient,
-		RequestedScope:    request.GetRequestedScopes(),
-		GrantedScope:      request.GetGrantedScopes(),
-		Form:              request.GetRequestForm(),
-		Session:           eSession,
-		RequestedAudience: request.GetRequestedAudience(),
-		GrantedAudience:   request.GetGrantedAudience(),
-	}
-	if err := s.cacheClient.SetWithExpire(s.authorizeCodeKey(client.GetID(), code), util.Marshal(authorizeCode), 5*time.Minute); err != nil {
-		logx.Error(err)
-		return err
-	}
+	// authorizeCode := AuthorizeCode{
+	// 	ID:                request.GetID(),
+	// 	RequestedAt:       request.GetRequestedAt(),
+	// 	Client:            eClient,
+	// 	RequestedScope:    request.GetRequestedScopes(),
+	// 	GrantedScope:      request.GetGrantedScopes(),
+	// 	Form:              request.GetRequestForm(),
+	// 	Session:           eSession,
+	// 	RequestedAudience: request.GetRequestedAudience(),
+	// 	GrantedAudience:   request.GetGrantedAudience(),
+	// }
+	// if err := s.cacheClient.SetWithExpire(s.authorizeCodeKey(client.GetID(), code), util.Marshal(authorizeCode), 5*time.Minute); err != nil {
+	// 	logx.Error(err)
+	// 	return err
+	// }
 	return nil
 }
 
