@@ -177,6 +177,7 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 	var result string
 	keyCache := s.authorizeCodeKey(clientId, code)
 	if err := s.cacheClient.Get(keyCache, &result); err != nil {
+		fmt.Println("vao trong nay", err)
 		return nil, err
 	}
 	defer func(cacheClient cache.Cache, key string) {

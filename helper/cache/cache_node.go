@@ -79,6 +79,8 @@ func (c cacheNode) Get(key string, val any) error {
 }
 
 func (c cacheNode) GetCtx(ctx context.Context, key string, val any) error {
+
+	fmt.Println("vao trong nay GetCtx")
 	err := c.doGetCache(ctx, key, val)
 	if errors.Is(err, errPlaceholder) {
 		return c.errNotFound
