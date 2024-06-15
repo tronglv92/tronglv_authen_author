@@ -59,6 +59,29 @@ func (p *oauthHandler) PortalAuthorize() http.HandlerFunc {
 
 func (p *oauthHandler) PortalToken() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, define.OAuthClientKey, r.FormValue("client_id"))
+
+		s := new(fosite.PortalSession)
+		ar, err := p.fs.NewAccessRequest(ctx, r, s)
+		if err != nil {
+			p.fs.WriteAccessError(ctx, w, ar, err)
+			return
+		}
+
+		pSession, ok := ar.GetSession().(*fosite.PortalSession)
+		if !ok {
+			p.fs.WriteAccessError(ctx, w, ar, fmt.Errorf("the portal session context unknown"))
+			return
+		}
+
+		if pSession.Token == nil {
+			p.fs.WriteAccessError(ctx, w, ar, fmt.Errorf("the token does not exist"))
+			return
+		}
+
+		response.Write(w, http.StatusOK, pSession.GetToken())
+		return
 	}
 }
 
@@ -68,17 +91,23 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 		ctx = context.WithValue(ctx, define.OAuthClientKey, r.FormValue("client_id"))
 		s := new(oauth2.JWTSession)
 
+		fmt.Println("Token 1")
+
 		ar, err := p.fs.NewAccessRequest(ctx, r, s)
 		if err != nil {
 			p.fs.WriteAccessError(ctx, w, ar, err)
 			return
 		}
 
+		fmt.Println("Token 2")
+
 		claims, e := p.authSvc.ClientClaims(r.Context(), ar.GetClient().GetID())
 		if e != nil {
 			p.fs.WriteAccessError(ctx, w, ar, e)
 			return
 		}
+
+		fmt.Println("Token 3")
 		s.JWTClaims = claims
 		ar.SetSession(s)
 		if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
@@ -91,6 +120,8 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 			p.fs.WriteAccessError(ctx, w, ar, err)
 			return
 		}
+
+		fmt.Println("Token 4")
 		p.fs.WriteAccessResponse(ctx, w, ar, resp)
 	}
 }

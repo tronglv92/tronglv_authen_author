@@ -3,6 +3,7 @@ module github/tronglv_authen_author
 go 1.21.5
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-openapi/runtime v0.28.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.0
@@ -19,6 +20,7 @@ require (
 	github.com/zeromicro/go-zero v1.6.5
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0
+	golang.org/x/crypto v0.23.0
 	golang.org/x/oauth2 v0.18.0
 	golang.org/x/text v0.16.0
 	google.golang.org/grpc v1.64.0
@@ -133,7 +135,6 @@ require (
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect

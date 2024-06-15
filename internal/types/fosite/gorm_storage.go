@@ -7,6 +7,7 @@ import (
 	"github/tronglv_authen_author/helper/cache"
 	db "github/tronglv_authen_author/helper/database"
 	"github/tronglv_authen_author/helper/define"
+
 	"github/tronglv_authen_author/helper/util"
 	rp "github/tronglv_authen_author/internal/repository"
 	"github/tronglv_authen_author/internal/types/entity"
@@ -15,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/ory/fosite"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,6 +33,15 @@ type AuthorizeCode struct {
 	GrantedAudience   fosite.Arguments `json:"granted_audience"`
 }
 
+type myClaims struct {
+	Payload TokenPayload `json:"payload"`
+	jwt.StandardClaims
+}
+
+type TokenPayload struct {
+	UId   int    `json:"user_id"`
+	URole string `json:"role"`
+}
 type gormStorage struct {
 	clientRepo  rp.ClientRepository
 	cacheClient cache.Cache
@@ -114,6 +125,29 @@ func (s *gormStorage) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, re
 	return nil
 }
 
+func (s *gormStorage) generateToken() (*string, error) {
+	// generate the JWT
+	now := time.Now()
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, myClaims{
+		TokenPayload{
+			UId:   1,
+			URole: "user",
+		},
+		jwt.StandardClaims{
+			ExpiresAt: now.Local().Add(time.Second * time.Duration(5)).Unix(),
+			IssuedAt:  now.Local().Unix(),
+			Id:        fmt.Sprintf("%d", now.UnixNano()),
+		},
+	})
+
+	myToken, err := t.SignedString([]byte("12345"))
+	if err != nil {
+		return nil, err
+	}
+	return &myToken, nil
+}
+
 func (s *gormStorage) CreateAuthorizeCodeSession(ctx context.Context, code string, request fosite.Requester) error {
 	fmt.Println("CreateAuthorizeCodeSession")
 	// info, err := auth.GetAuthData(ctx)
@@ -121,35 +155,47 @@ func (s *gormStorage) CreateAuthorizeCodeSession(ctx context.Context, code strin
 	// 	return err
 	// }
 
-	// client := request.GetClient()
-	// eClient, ok := client.(*entity.Client)
-	// if !ok {
-	// 	return fmt.Errorf("the client context unknown")
-	// }
+	client := request.GetClient()
 
-	// eSession, ok := request.GetSession().(*PortalSession)
-	// if !ok {
-	// 	return fmt.Errorf("the portal session context unknown")
-	// }
-	// if err := eSession.SetToken(info.GetToken()); err != nil {
-	// 	return err
-	// }
+	// fmt.Println("info: ", info)
 
-	// authorizeCode := AuthorizeCode{
-	// 	ID:                request.GetID(),
-	// 	RequestedAt:       request.GetRequestedAt(),
-	// 	Client:            eClient,
-	// 	RequestedScope:    request.GetRequestedScopes(),
-	// 	GrantedScope:      request.GetGrantedScopes(),
-	// 	Form:              request.GetRequestForm(),
-	// 	Session:           eSession,
-	// 	RequestedAudience: request.GetRequestedAudience(),
-	// 	GrantedAudience:   request.GetGrantedAudience(),
-	// }
-	// if err := s.cacheClient.SetWithExpire(s.authorizeCodeKey(client.GetID(), code), util.Marshal(authorizeCode), 5*time.Minute); err != nil {
-	// 	logx.Error(err)
-	// 	return err
-	// }
+	eClient, ok := client.(*entity.Client)
+	if !ok {
+		return fmt.Errorf("the client context unknown")
+	}
+	fmt.Println("client: ", client)
+	eSession, ok := request.GetSession().(*PortalSession)
+	if !ok {
+		return fmt.Errorf("the portal session context unknown")
+	}
+	accessToken, err := s.generateToken()
+	if err != nil {
+		return err
+	}
+
+	if err := eSession.SetToken(*accessToken); err != nil {
+		return err
+	}
+
+	authorizeCode := AuthorizeCode{
+		ID:                request.GetID(),
+		RequestedAt:       request.GetRequestedAt(),
+		Client:            eClient,
+		RequestedScope:    request.GetRequestedScopes(),
+		GrantedScope:      request.GetGrantedScopes(),
+		Form:              request.GetRequestForm(),
+		Session:           eSession,
+		RequestedAudience: request.GetRequestedAudience(),
+		GrantedAudience:   request.GetGrantedAudience(),
+	}
+
+	val := util.Marshal(authorizeCode)
+	fmt.Println("CreateAuthorizeCodeSession authorizeCode:", val)
+	if err := s.cacheClient.SetWithExpire(s.authorizeCodeKey(client.GetID(), code), val, 5*time.Minute); err != nil {
+		fmt.Println("SetWithExpire err: ", err)
+		logx.Error(err)
+		return err
+	}
 	return nil
 }
 
@@ -176,6 +222,7 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 
 	var result string
 	keyCache := s.authorizeCodeKey(clientId, code)
+
 	if err := s.cacheClient.Get(keyCache, &result); err != nil {
 		fmt.Println("vao trong nay", err)
 		return nil, err
@@ -190,6 +237,7 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 		return nil, fmt.Errorf("the authorization code is invalid or has expired")
 	}
 
+	fmt.Println("GetAuthorizeCodeSession result:", result)
 	var reqData AuthorizeCode
 	if err := json.Unmarshal([]byte(result), &reqData); err != nil {
 		return nil, err
@@ -206,4 +254,5 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 		RequestedAudience: reqData.RequestedAudience,
 		GrantedAudience:   reqData.GrantedAudience,
 	}, nil
+
 }

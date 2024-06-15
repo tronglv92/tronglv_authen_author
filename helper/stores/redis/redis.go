@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	red "github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/breaker"
@@ -13,7 +15,6 @@ import (
 	"github.com/zeromicro/go-zero/core/syncx"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
-	"time"
 )
 
 const (
@@ -176,14 +177,18 @@ func (s *Redis) Get(key string) (string, error) {
 func (s *Redis) GetCtx(ctx context.Context, key string) (string, error) {
 	conn, err := getRedis(s)
 	if err != nil {
+		fmt.Println("GetCtx 1 ")
 		return "", err
 	}
 
+	fmt.Println("GetCtx key: ", key)
 	if val, err := conn.Get(ctx, key).Result(); errors.Is(err, red.Nil) {
 		return "", nil
 	} else if err != nil {
+		fmt.Println("GetCtx 3 ")
 		return "", err
 	} else {
+		fmt.Println("GetCtx 4 ")
 		return val, nil
 	}
 }

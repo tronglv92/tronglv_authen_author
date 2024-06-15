@@ -10,7 +10,7 @@ import (
 )
 
 func ReadPrivateKeyFromFile(filename string) (*rsa.PrivateKey, error) {
-	keyBytes, err := os.ReadFile(fmt.Sprintf("storage/%s", filename))
+	keyBytes, err := os.ReadFile(fmt.Sprintf("keys/%s", filename))
 	if err != nil {
 		return nil, err
 	}
@@ -20,9 +20,14 @@ func ReadPrivateKeyFromFile(filename string) (*rsa.PrivateKey, error) {
 		return nil, fmt.Errorf("failed to decode PEM block containing private key")
 	}
 
-	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	privateKeyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
+	}
+
+	privateKey, ok := privateKeyInterface.(*rsa.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("failed to cast private key to *rsa.PrivateKey")
 	}
 
 	return privateKey, nil

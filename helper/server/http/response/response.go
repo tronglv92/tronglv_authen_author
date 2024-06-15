@@ -2,10 +2,10 @@ package response
 
 import (
 	"context"
-	"net/http"
 	"github/tronglv_authen_author/helper/errors"
 	"github/tronglv_authen_author/helper/locale"
 	"github/tronglv_authen_author/helper/logify"
+	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"go.opentelemetry.io/otel/trace"
@@ -49,5 +49,9 @@ func parseError(ctx context.Context, err error) (int, errors.Error) {
 
 func OkJson(ctx context.Context, w http.ResponseWriter, result any, paging any) {
 	httpx.OkJsonCtx(ctx, w, setHttpResponse(ctx, result, paging, nil))
+	return
+}
+func Write(w http.ResponseWriter, status int, resp any) {
+	httpx.WriteJson(w, status, resp)
 	return
 }

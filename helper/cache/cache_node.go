@@ -85,7 +85,7 @@ func (c cacheNode) GetCtx(ctx context.Context, key string, val any) error {
 	if errors.Is(err, errPlaceholder) {
 		return c.errNotFound
 	}
-
+	fmt.Println("GetCtx err:", err)
 	return err
 }
 
@@ -167,17 +167,20 @@ func (c cacheNode) doGetCache(ctx context.Context, key string, v any) error {
 	c.stat.IncrementTotal()
 	data, err := c.rds.GetCtx(ctx, key)
 	if err != nil {
+		fmt.Println("doGetCache 1")
 		c.stat.IncrementMiss()
 		return err
 	}
 
 	if len(data) == 0 {
+		fmt.Println("doGetCache 2")
 		c.stat.IncrementMiss()
 		return c.errNotFound
 	}
 
 	c.stat.IncrementHit()
 	if data == notFoundPlaceholder {
+		fmt.Println("doGetCache 3")
 		return errPlaceholder
 	}
 
