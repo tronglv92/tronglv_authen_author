@@ -26,11 +26,14 @@ func NewFositeContext(c config.OAuthConfig, sqlConn db.Database, cacheClient cac
 	}
 
 	keyGetter := func(ctx context.Context) (interface{}, error) {
-		privateKey, err := rsa.ReadPrivateKeyFromFile("private_key.pem")
+		// privateKey, err := rsa.ReadPrivateKeyFromFile("private_key1.pem")
+		// fmt.Println("c.PrivateKey", c.PrivateKey)
+		privateKey, err := rsa.ParsePKFromPEM(c.PrivateKey)
 		if err != nil {
 			logx.Error(err)
 			return nil, err
 		}
+
 		return privateKey, nil
 	}
 

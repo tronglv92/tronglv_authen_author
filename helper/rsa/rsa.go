@@ -20,17 +20,17 @@ func ReadPrivateKeyFromFile(filename string) (*rsa.PrivateKey, error) {
 		return nil, fmt.Errorf("failed to decode PEM block containing private key")
 	}
 
-	privateKeyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	privateKeyInterface, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	privateKey, ok := privateKeyInterface.(*rsa.PrivateKey)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast private key to *rsa.PrivateKey")
-	}
+	// privateKey, ok := privateKeyInterface.(*rsa.PrivateKey)
+	// if !ok {
+	// 	return nil, fmt.Errorf("failed to cast private key to *rsa.PrivateKey")
+	// }
 
-	return privateKey, nil
+	return privateKeyInterface, nil
 }
 
 func ParsePKFromPEM(keyPem string) (*rsa.PrivateKey, error) {
@@ -48,4 +48,26 @@ func ParsePKFromPEM(keyPem string) (*rsa.PrivateKey, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+func ConvertPrivateKeyToPEM(privateKey *rsa.PrivateKey) (string, error) {
+	// Convert the RSA private key to DER format
+	der := x509.MarshalPKCS1PrivateKey(privateKey)
+	if der == nil {
+		return "", fmt.Errorf("failed to marshal RSA private key")
+	}
+
+	// Create a PEM block with the DER encoded private key
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: der,
+	}
+
+	// Encode the PEM block to a string
+	pemData := pem.EncodeToMemory(block)
+	if pemData == nil {
+		return "", fmt.Errorf("failed to encode PEM block")
+	}
+
+	return string(pemData), nil
 }

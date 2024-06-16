@@ -76,6 +76,7 @@ func (s *gormStorage) SetClientAssertionJWT(ctx context.Context, jti string, exp
 }
 
 func (s *gormStorage) CreateAccessTokenSession(ctx context.Context, signature string, request fosite.Requester) (err error) {
+	request.GetSession()
 	fmt.Println("CreateAccessTokenSession")
 	return nil
 }
@@ -227,11 +228,11 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 		fmt.Println("vao trong nay", err)
 		return nil, err
 	}
-	defer func(cacheClient cache.Cache, key string) {
-		if err := cacheClient.Del(key); err != nil {
-			logx.Error(err)
-		}
-	}(s.cacheClient, keyCache)
+	// defer func(cacheClient cache.Cache, key string) {
+	// 	if err := cacheClient.Del(key); err != nil {
+	// 		logx.Error(err)
+	// 	}
+	// }(s.cacheClient, keyCache)
 
 	if len(result) == 0 {
 		return nil, fmt.Errorf("the authorization code is invalid or has expired")

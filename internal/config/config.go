@@ -3,8 +3,9 @@ package config
 import (
 	"flag"
 	"github/tronglv_authen_author/helper/cache"
+	db "github/tronglv_authen_author/helper/database"
 	"github/tronglv_authen_author/helper/server"
-db "github/tronglv_authen_author/helper/database"
+
 	"github.com/zeromicro/go-zero/core/conf"
 )
 
@@ -30,6 +31,7 @@ type OAuthConfig struct {
 	Debug                 bool   `json:"debug,default=false"`
 	HashSecret            string `json:"hash-secret,optional"`
 	PrivateKey            string `json:"private-key,optional"`
+	PublicKey             string `json:"public-key,optional"`
 	AccessTokenLifespan   int    `json:"access-token-lifespan,default=1"`
 	RefreshTokenLifespan  int    `json:"refresh-token-lifespan,default=24"`
 	AuthorizeCodeLifespan int    `json:"authorize-code-lifespan,default=1"`

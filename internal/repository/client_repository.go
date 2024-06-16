@@ -20,6 +20,7 @@ type ClientRepository interface {
 	FindWithPagination(ctx context.Context, limit int, page int, opts ...baseRepo.QueryOpt) ([]*entity.Client, *model.Pagination, error)
 	WithOrder(sortBy string, sortOrder string, fields ...string) baseRepo.QueryOpt
 	CreateWithReturn(ctx context.Context, entity *entity.Client) (*entity.Client, error)
+	WithPreloads(relations ...string) baseRepo.QueryOpt
 }
 
 func NewClientRepository(db db.Database) ClientRepository {

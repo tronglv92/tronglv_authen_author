@@ -81,7 +81,7 @@ func (p *oauthHandler) PortalToken() http.HandlerFunc {
 		}
 
 		response.Write(w, http.StatusOK, pSession.GetToken())
-		return
+
 	}
 }
 
@@ -91,15 +91,11 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 		ctx = context.WithValue(ctx, define.OAuthClientKey, r.FormValue("client_id"))
 		s := new(oauth2.JWTSession)
 
-		fmt.Println("Token 1")
-
 		ar, err := p.fs.NewAccessRequest(ctx, r, s)
 		if err != nil {
 			p.fs.WriteAccessError(ctx, w, ar, err)
 			return
 		}
-
-		fmt.Println("Token 2")
 
 		claims, e := p.authSvc.ClientClaims(r.Context(), ar.GetClient().GetID())
 		if e != nil {
@@ -107,8 +103,8 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("Token 3")
 		s.JWTClaims = claims
+
 		ar.SetSession(s)
 		if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
 			for _, scope := range claims.Scope {
@@ -121,7 +117,7 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("Token 4")
+		fmt.Println("Token resp:", resp)
 		p.fs.WriteAccessResponse(ctx, w, ar, resp)
 	}
 }

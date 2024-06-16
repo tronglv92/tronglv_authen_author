@@ -2,12 +2,12 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"github/tronglv_authen_author/api/authentication"
 
 	"github/tronglv_authen_author/helper/client"
 	"github/tronglv_authen_author/helper/client/identity"
 	"github/tronglv_authen_author/helper/define"
-	"github/tronglv_authen_author/helper/util"
 	"github/tronglv_authen_author/helper/util/token"
 )
 
@@ -91,7 +91,10 @@ func (s *authSvc) LocalValidate(ctx context.Context, tkn string) (AuthData, erro
 		return nil, err
 	}
 
+	fmt.Println("claims: ", claims)
+
 	if claims.GetString("iss") == define.ClientIssuer {
+		fmt.Println("vao trong nay 1")
 		clt, err := ParseClient(tkn, s.publicKey)
 		if err != nil {
 			return nil, err
@@ -100,19 +103,21 @@ func (s *authSvc) LocalValidate(ctx context.Context, tkn string) (AuthData, erro
 	}
 
 	if len(s.secretKey) > 0 {
+		fmt.Println("vao trong nay 2")
 		ult, err := ParseUser(tkn, s.secretKey)
 		if err != nil {
 			return nil, err
 		}
 		return NewAuthData(tkn, nil, ult), nil
 	}
-
-	rst := NewUserService(util.ServiceName(ctx), s.gatewayUrl)
-	user, err := rst.Auth(ctx, tkn)
-	if err != nil {
-		return nil, err
-	}
-	return NewAuthData(tkn, nil, user), nil
+	fmt.Println("vao trong nay tkn: ", tkn)
+	// rst := NewUserService(util.ServiceName(ctx), s.gatewayUrl)
+	// user, err := rst.Auth(ctx, tkn)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return NewAuthData(tkn, nil, user), nil
+	return nil, nil
 }
 
 func (s *authSvc) AssignToContext(ctx context.Context, u AuthData) context.Context {
