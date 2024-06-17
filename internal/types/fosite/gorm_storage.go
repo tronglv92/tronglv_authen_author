@@ -43,8 +43,9 @@ type TokenPayload struct {
 	URole string `json:"role"`
 }
 type gormStorage struct {
-	clientRepo  rp.ClientRepository
-	cacheClient cache.Cache
+	clientRepo    rp.ClientRepository
+	cacheClient   cache.Cache
+	RefreshTokens map[string]fosite.Requester
 }
 
 func NewGormStore(sqlConn db.Database, cacheClient cache.Cache) fosite.Storage {
@@ -76,7 +77,7 @@ func (s *gormStorage) SetClientAssertionJWT(ctx context.Context, jti string, exp
 }
 
 func (s *gormStorage) CreateAccessTokenSession(ctx context.Context, signature string, request fosite.Requester) (err error) {
-	request.GetSession()
+
 	fmt.Println("CreateAccessTokenSession")
 	return nil
 }
@@ -92,7 +93,9 @@ func (s *gormStorage) GetAccessTokenSession(ctx context.Context, signature strin
 }
 
 func (s *gormStorage) CreateRefreshTokenSession(ctx context.Context, signature string, request fosite.Requester) (err error) {
+	s.RefreshTokens[signature] = request
 	fmt.Println("CreateRefreshTokenSession")
+
 	return nil
 }
 
@@ -103,7 +106,7 @@ func (s *gormStorage) DeleteRefreshTokenSession(ctx context.Context, signature s
 
 func (s *gormStorage) GetRefreshTokenSession(ctx context.Context, signature string, session fosite.Session) (request fosite.Requester, err error) {
 	fmt.Println("GetRefreshTokenSession")
-	return nil, nil
+	return s.RefreshTokens[signature], nil
 }
 
 func (s *gormStorage) InvalidateAuthorizeCodeSession(ctx context.Context, code string) (err error) {

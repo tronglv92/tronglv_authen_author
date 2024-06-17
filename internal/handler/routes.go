@@ -68,7 +68,7 @@ func registerClientHandler(svr *rest.Server, svc *registry.ServiceContext) {
 	svr.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{
-				svc.AuthMiddleware,
+				// svc.AuthMiddleware,
 			},
 			[]rest.Route{
 				{

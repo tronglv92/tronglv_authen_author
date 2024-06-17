@@ -53,5 +53,6 @@ func NewFositeContext(c config.OAuthConfig, sqlConn db.Database, cacheClient cac
 		// 3. The authorization server redirects the user back to the client with an authorization code.
 		// 4. The client exchanges the authorization code for an access token.
 		compose.OAuth2AuthorizeExplicitFactory,
+		compose.OAuth2RefreshTokenGrantFactory,
 	)
 }
