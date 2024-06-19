@@ -45,6 +45,7 @@ func (s *PortalSession) SetToken(t string) error {
 		AccessToken: t,
 		Expiry:      expiry,
 		TokenType:   fosite.BearerAccessToken,
+		// RefreshToken: t,
 	}
 	return nil
 }

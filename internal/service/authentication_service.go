@@ -48,6 +48,7 @@ func (s *authSvcImpl) ClientClaims(ctx context.Context, clientId string) (*jwt.J
 		Issuer:  define.ClientIssuer,
 		Subject: client.UId,
 		Scope:   client.GetScopes(),
+
 		Extra: map[string]any{
 			"id":    client.Id,
 			"name":  client.Name,

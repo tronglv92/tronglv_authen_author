@@ -63,6 +63,8 @@ func (s *gormStorage) GetClient(ctx context.Context, clientId string) (fosite.Cl
 	if client.Status != int(define.ActiveStatus) {
 		return nil, fmt.Errorf("the client account is inactive")
 	}
+
+	fmt.Println("GetClient client ", client)
 	return client, nil
 }
 
@@ -246,8 +248,7 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 	if err := json.Unmarshal([]byte(result), &reqData); err != nil {
 		return nil, err
 	}
-
-	return &fosite.Request{
+	request := fosite.Request{
 		ID:                reqData.ID,
 		RequestedAt:       reqData.RequestedAt,
 		Client:            reqData.Client,
@@ -257,6 +258,10 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 		Session:           reqData.Session,
 		RequestedAudience: reqData.RequestedAudience,
 		GrantedAudience:   reqData.GrantedAudience,
-	}, nil
+	}
+
+	fmt.Println("GetAuthorizeCodeSession request.GetClient().GetGrantTypes():", request.GetClient().GetGrantTypes())
+
+	return &request, nil
 
 }

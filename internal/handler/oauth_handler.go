@@ -97,6 +97,8 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 			return
 		}
 
+		fmt.Println("Token ar:", ar)
+
 		claims, e := p.authSvc.ClientClaims(r.Context(), ar.GetClient().GetID())
 		if e != nil {
 			p.fs.WriteAccessError(ctx, w, ar, e)
@@ -106,11 +108,11 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 		s.JWTClaims = claims
 
 		ar.SetSession(s)
-		if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
-			for _, scope := range claims.Scope {
-				ar.GrantScope(scope)
-			}
-		}
+		// if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
+		// 	for _, scope := range claims.Scope {
+		// 		ar.GrantScope(scope)
+		// 	}
+		// }
 		resp, err := p.fs.NewAccessResponse(ctx, ar)
 		if err != nil {
 			p.fs.WriteAccessError(ctx, w, ar, err)
