@@ -3,7 +3,6 @@ package fosite
 import (
 	"context"
 	"fmt"
-
 	"github/tronglv_authen_author/helper/server/http/response"
 	"github/tronglv_authen_author/helper/util"
 	"net/http"

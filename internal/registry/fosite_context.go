@@ -23,6 +23,8 @@ func NewFositeContext(c config.OAuthConfig, sqlConn db.Database, cacheClient cac
 		RefreshTokenLifespan:       time.Duration(c.RefreshTokenLifespan) * time.Hour,
 		AuthorizeCodeLifespan:      time.Duration(c.AuthorizeCodeLifespan) * time.Minute,
 		SendDebugMessagesToClients: c.Debug,
+		RefreshTokenScopes:         []string{"offline"},
+		OmitRedirectScopeParam:     false,
 	}
 
 	keyGetter := func(ctx context.Context) (interface{}, error) {
@@ -40,13 +42,16 @@ func NewFositeContext(c config.OAuthConfig, sqlConn db.Database, cacheClient cac
 	return compose.Compose(
 		conf,
 		fs.NewGormStore(sqlConn, cacheClient),
-		compose.NewOAuth2JWTStrategy(keyGetter, compose.NewOAuth2HMACStrategy(conf), conf),
+		&compose.CommonStrategy{
+			CoreStrategy: compose.NewOAuth2JWTStrategy(keyGetter, compose.NewOAuth2HMACStrategy(conf), conf),
+		},
+		// compose.NewOAuth2JWTStrategy(keyGetter, compose.NewOAuth2HMACStrategy(conf), conf),
 		//server-to-server communication
 		// 1. The client sends a request to the token endpoint with its client ID and secret.
 		// 2. The authorization server validates the credentials.
 		// 3. If valid, the server issues an access token to the client.
 		compose.OAuth2ClientCredentialsGrantFactory,
-
+		compose.OAuth2TokenIntrospectionFactory,
 		// client-to-server
 		// 1. The client directs the user to the authorization server with a request for authorization.
 		// 2. The user logs in and approves the request.

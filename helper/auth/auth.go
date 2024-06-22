@@ -68,9 +68,9 @@ func New(opts ...Option) Validate {
 }
 
 func (s *authSvc) Validate(ctx context.Context, tkn string) (AuthData, error) {
-	if s.idtClient != nil {
-		return s.RemoteValidate(ctx, tkn)
-	}
+	// if s.idtClient != nil {
+	// 	return s.RemoteValidate(ctx, tkn)
+	// }
 	return s.LocalValidate(ctx, tkn)
 }
 

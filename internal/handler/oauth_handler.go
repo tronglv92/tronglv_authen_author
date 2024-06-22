@@ -41,10 +41,12 @@ func (p *oauthHandler) PortalAuthorize() http.HandlerFunc {
 		ar, err := p.fs.NewAuthorizeRequest(ctx, r)
 
 		if err != nil {
-			fmt.Println("PortalAuthorize err", err)
+
 			fosite.WriteAuthorizeError(ctx, p.fs, w, ar, err)
 			return
 		}
+
+		ar.GrantScope("offline")
 
 		s := new(fosite.PortalSession)
 		resp, err := p.fs.NewAuthorizeResponse(ctx, ar, s)
@@ -52,6 +54,7 @@ func (p *oauthHandler) PortalAuthorize() http.HandlerFunc {
 			fosite.WriteAuthorizeError(ctx, p.fs, w, ar, err)
 			return
 		}
+
 		redirectUrl := fmt.Sprintf("%s?%s", ar.GetRedirectURI().String(), resp.GetParameters().Encode())
 		response.OkJson(ctx, w, fosite.AuthorizeResp{RedirectUrl: redirectUrl}, nil)
 	}
@@ -97,8 +100,6 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("Token ar:", ar)
-
 		claims, e := p.authSvc.ClientClaims(r.Context(), ar.GetClient().GetID())
 		if e != nil {
 			p.fs.WriteAccessError(ctx, w, ar, e)
@@ -108,18 +109,25 @@ func (p *oauthHandler) Token() http.HandlerFunc {
 		s.JWTClaims = claims
 
 		ar.SetSession(s)
-		// if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
-		// 	for _, scope := range claims.Scope {
-		// 		ar.GrantScope(scope)
-		// 	}
+		if ar.GetGrantTypes().ExactOne(define.GrantClientCredential) {
+			for _, scope := range claims.Scope {
+				ar.GrantScope(scope)
+			}
+		}
+
+		// for _, scope := range claims.Scope {
+		// 	ar.GrantScope(scope)
 		// }
+
+		fmt.Println("Token ar:", ar)
+
 		resp, err := p.fs.NewAccessResponse(ctx, ar)
 		if err != nil {
 			p.fs.WriteAccessError(ctx, w, ar, err)
 			return
 		}
 
-		fmt.Println("Token resp:", resp)
+		fmt.Println("Token ar.GetGrantTypes():", ar.GetGrantedScopes())
 		p.fs.WriteAccessResponse(ctx, w, ar, resp)
 	}
 }

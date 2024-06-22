@@ -50,8 +50,9 @@ type gormStorage struct {
 
 func NewGormStore(sqlConn db.Database, cacheClient cache.Cache) fosite.Storage {
 	return &gormStorage{
-		cacheClient: cacheClient,
-		clientRepo:  rp.NewClientRepository(sqlConn),
+		cacheClient:   cacheClient,
+		clientRepo:    rp.NewClientRepository(sqlConn),
+		RefreshTokens: make(map[string]fosite.Requester),
 	}
 }
 func (s *gormStorage) GetClient(ctx context.Context, clientId string) (fosite.Client, error) {
@@ -80,7 +81,7 @@ func (s *gormStorage) SetClientAssertionJWT(ctx context.Context, jti string, exp
 
 func (s *gormStorage) CreateAccessTokenSession(ctx context.Context, signature string, request fosite.Requester) (err error) {
 
-	fmt.Println("CreateAccessTokenSession")
+	fmt.Println("CreateAccessTokenSession request ", request)
 	return nil
 }
 
@@ -163,13 +164,13 @@ func (s *gormStorage) CreateAuthorizeCodeSession(ctx context.Context, code strin
 
 	client := request.GetClient()
 
-	// fmt.Println("info: ", info)
+	fmt.Println("CreateAuthorizeCodeSession  request: ", request)
 
 	eClient, ok := client.(*entity.Client)
 	if !ok {
 		return fmt.Errorf("the client context unknown")
 	}
-	fmt.Println("client: ", client)
+	// fmt.Println("client: ", client)
 	eSession, ok := request.GetSession().(*PortalSession)
 	if !ok {
 		return fmt.Errorf("the portal session context unknown")
@@ -196,7 +197,7 @@ func (s *gormStorage) CreateAuthorizeCodeSession(ctx context.Context, code strin
 	}
 
 	val := util.Marshal(authorizeCode)
-	fmt.Println("CreateAuthorizeCodeSession authorizeCode:", val)
+	// fmt.Println("CreateAuthorizeCodeSession authorizeCode:", val)
 	if err := s.cacheClient.SetWithExpire(s.authorizeCodeKey(client.GetID(), code), val, 5*time.Minute); err != nil {
 		fmt.Println("SetWithExpire err: ", err)
 		logx.Error(err)
@@ -230,7 +231,7 @@ func (s *gormStorage) GetAuthorizeCodeSession(ctx context.Context, code string, 
 	keyCache := s.authorizeCodeKey(clientId, code)
 
 	if err := s.cacheClient.Get(keyCache, &result); err != nil {
-		fmt.Println("vao trong nay", err)
+
 		return nil, err
 	}
 	// defer func(cacheClient cache.Cache, key string) {
