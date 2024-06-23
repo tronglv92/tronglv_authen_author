@@ -12,5 +12,6 @@ func RegisterMigrate() []any {
 		&GroupRole{},
 		&UserRole{},
 		&UserGroup{},
+		&User{},
 	}
 }

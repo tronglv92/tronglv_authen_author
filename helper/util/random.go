@@ -17,3 +17,9 @@ func RandomString(length int) (string, error) {
 	}
 	return string(bytes), nil
 }
+func GenSalt(length int) (string, error) {
+	if length < 0 {
+		length = 50
+	}
+	return RandomString(length)
+}

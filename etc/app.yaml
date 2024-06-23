@@ -47,3 +47,10 @@ oauth:
   hash-secret: "${OAUTH_HASH_SECRET}"
   private-key: "${OAUTH_PRIVATE_KEY}"
   public-key: "${OAUTH_PUBLIC_KEY}"
+  # access-token-lifespan: "${OAUTH_ACCESS_TOKEN_LIFESPAN}"
+  # refresh-token-lifespan: "${OAUTH_REFRESH_TOKEN_LIFESPAN}"
+
+jwt:
+  hash-secret: "${OAUTH_HASH_SECRET}"
+  # access-token-lifespan: "${OAUTH_ACCESS_TOKEN_LIFESPAN}"
+  # refresh-token-lifespan: "${OAUTH_REFRESH_TOKEN_LIFESPAN}"

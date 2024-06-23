@@ -2,6 +2,7 @@ package server
 
 import (
 	"github/tronglv_authen_author/helper/server/http/middleware"
+	"github/tronglv_authen_author/internal/config"
 
 	"github.com/zeromicro/go-zero/core/load"
 	"github.com/zeromicro/go-zero/core/stat"
@@ -11,7 +12,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-func MustSetup(c Config) {
+func MustSetup(c config.ServerConfig) {
 	Initialize()
 	if !c.StatLog {
 		stat.DisableLog()
@@ -27,7 +28,7 @@ func Initialize() {
 	}
 }
 
-func NewHttpServer(c Config, h RestHandler, opts ...rest.RunOption) *rest.Server {
+func NewHttpServer(c config.ServerConfig, h RestHandler, opts ...rest.RunOption) *rest.Server {
 	MustSetup(c)
 	srv := rest.MustNewServer(c.Http, opts...)
 	srv.Use(middleware.NewRecoveryMiddleware(c.Env).Handle)
@@ -36,7 +37,7 @@ func NewHttpServer(c Config, h RestHandler, opts ...rest.RunOption) *rest.Server
 	return srv
 }
 
-func NewGrpcServer(c Config, h GrpcHandler, opts ...grpc.ServerOption) *zrpc.RpcServer {
+func NewGrpcServer(c config.ServerConfig, h GrpcHandler, opts ...grpc.ServerOption) *zrpc.RpcServer {
 	MustSetup(c)
 	s := zrpc.MustNewServer(c.Grpc, func(grpcServer *grpc.Server) {
 		h.Register(grpcServer)

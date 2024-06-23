@@ -4,9 +4,10 @@ import (
 	"flag"
 	"github/tronglv_authen_author/helper/cache"
 	db "github/tronglv_authen_author/helper/database"
-	"github/tronglv_authen_author/helper/server"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 func Load(file *string) Config {
@@ -17,10 +18,11 @@ func Load(file *string) Config {
 }
 
 type Config struct {
-	Server   server.Config `json:"server,optional"`
-	Cache    cache.Config  `json:"cache,optional"`
-	OAuth    OAuthConfig   `json:"oauth,optional"`
-	Database db.DBConfig   `json:"database,optional"`
+	Server   ServerConfig `json:"server,optional"`
+	Cache    cache.Config `json:"cache,optional"`
+	OAuth    OAuthConfig  `json:"oauth,optional"`
+	Database db.DBConfig  `json:"database,optional"`
+	JWT      JWTConfig    `json:"jwt,optional"`
 }
 
 func (c Config) ServiceName() string {
@@ -35,4 +37,19 @@ type OAuthConfig struct {
 	AccessTokenLifespan   int    `json:"access-token-lifespan,default=1"`
 	RefreshTokenLifespan  int    `json:"refresh-token-lifespan,default=24"`
 	AuthorizeCodeLifespan int    `json:"authorize-code-lifespan,default=1"`
+}
+
+type JWTConfig struct {
+	HashSecret           string `json:"hash-secret,optional"`
+	AccessTokenLifespan  int    `json:"access-token-lifespan,default=1"`
+	RefreshTokenLifespan int    `json:"refresh-token-lifespan,default=24"`
+}
+
+type ServerConfig struct {
+	Id      int                `json:",default=0,optional"`
+	Env     string             `json:",default=production,optional"`
+	StatLog bool               `json:"stat-log,default=false"`
+	LoadLog bool               `json:"load-log,default=false"`
+	Http    rest.RestConf      `json:"http,optional"`
+	Grpc    zrpc.RpcServerConf `json:"grpc,optional"`
 }

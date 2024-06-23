@@ -25,6 +25,7 @@ func NewRestHandler(svc *registry.ServiceContext) RestHandler {
 func (h RestHandler) Register(svr *rest.Server) {
 	handler.RegisterSwaggerHandler(svr, BasePrefix)
 	globalMiddleware(svr, h.svc)
+	registerOAuth2Handler(svr, h.svc)
 	registerOAuthHandler(svr, h.svc)
 	registerClientHandler(svr, h.svc)
 }
@@ -32,16 +33,16 @@ func (h RestHandler) Register(svr *rest.Server) {
 func globalMiddleware(_ *rest.Server, _ *registry.ServiceContext) {
 }
 
-func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
-	h := NewOAuthHandler(svc)
-	var path = "/oauth"
+func registerOAuth2Handler(svr *rest.Server, svc *registry.ServiceContext) {
+	h := NewOAuth2Handler(svc)
+	var path = "/oauth2"
 	svr.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/portal-authorize", path),
+					Path:    fmt.Sprintf("%s/authorize", path),
 					Handler: h.PortalAuthorize(),
 				},
 				{
@@ -51,7 +52,7 @@ func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/portal-token", path),
+					Path:    fmt.Sprintf("%s/session-token", path),
 					Handler: h.PortalToken(),
 				},
 			}...,
@@ -59,7 +60,23 @@ func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
 		rest.WithPrefix(RestPrefix),
 	)
 }
-
+func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
+	h := NewOauthHandler(svc)
+	var path = "/oauth"
+	svr.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/register", path),
+					Handler: h.Register(),
+				},
+			}...,
+		),
+		rest.WithPrefix(RestPrefix),
+	)
+}
 func registerClientHandler(svr *rest.Server, svc *registry.ServiceContext) {
 	h := NewClientHandler(svc)
 	var (

@@ -4,6 +4,8 @@ import (
 	"github/tronglv_authen_author/helper/auth"
 	"github/tronglv_authen_author/helper/cache"
 	db "github/tronglv_authen_author/helper/database"
+	"github/tronglv_authen_author/helper/tokenprovider"
+	"github/tronglv_authen_author/helper/tokenprovider/jwt"
 
 	mdh "github/tronglv_authen_author/helper/server/http/middleware"
 	"github/tronglv_authen_author/internal/config"
@@ -21,6 +23,8 @@ type ServiceContext struct {
 	ClientRepo     rp.ClientRepository
 	PermissionRepo rp.PermissionRepository
 	ClientRoleRepo rp.ClientRoleRepository
+	UserRepo       rp.UserRepository
+	JwtProvider    tokenprovider.Provider
 	AuthMiddleware rest.Middleware
 }
 
@@ -39,6 +43,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ClientRepo:     rp.NewClientRepository(sqlConn),
 		PermissionRepo: rp.NewPermissionRepository(sqlConn),
 		ClientRoleRepo: rp.NewClientRoleRepository(sqlConn),
+		UserRepo:       rp.NewUserRepository(sqlConn),
+		JwtProvider:    jwt.NewTokenJWTProvider(c.JWT),
 		AuthMiddleware: mdh.NewAuthMiddleware(
 			auth.WithPublicKey(c.OAuth.PublicKey)).Handle,
 	}

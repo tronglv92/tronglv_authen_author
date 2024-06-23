@@ -1,5 +1,7 @@
 package tokenprovider
 
+import "time"
+
 type Provider interface {
 	Generate(data TokenPayload, expiry int) (Token, error)
 	Validate(token string) (TokenPayload, error)
@@ -7,12 +9,11 @@ type Provider interface {
 }
 
 type TokenPayload interface {
-	UserId() int
-	Role() string
+	UserId() int32
 }
 
 type Token interface {
 	GetToken() string
+	GetCreated() time.Time
+	GetExpiry() int
 }
-
-

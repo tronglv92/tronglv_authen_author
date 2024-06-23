@@ -3,6 +3,7 @@ package jwt
 import (
 	"fmt"
 	"github/tronglv_authen_author/helper/tokenprovider"
+	"github/tronglv_authen_author/internal/config"
 
 	"time"
 
@@ -10,24 +11,35 @@ import (
 )
 
 type TokenPayloadImp struct {
-	UId   int    `json:"user_id"`
-	URole string `json:"role"`
+	UId int32
 }
 
-func (p TokenPayloadImp) UserId() int {
+func (p TokenPayloadImp) UserId() int32 {
 	return p.UId
 }
 
-func (p TokenPayloadImp) Role() string {
-	return p.URole
+type TokenImp struct {
+	Token   string
+	Created time.Time
+	Expiry  int
+}
+
+func (p TokenImp) GetToken() string {
+	return p.Token
+}
+func (p TokenImp) GetCreated() time.Time {
+	return p.Created
+}
+func (p TokenImp) GetExpiry() int {
+	return p.Expiry
 }
 
 type jwtProvider struct {
-	secret string
+	cf config.JWTConfig
 }
 
-func NewTokenJWTProvider() *jwtProvider {
-	return &jwtProvider{}
+func NewTokenJWTProvider(cf config.JWTConfig) tokenprovider.Provider {
+	return &jwtProvider{cf: cf}
 }
 
 type myClaims struct {
@@ -35,18 +47,8 @@ type myClaims struct {
 	jwt.StandardClaims
 }
 
-type token struct {
-	Token   string    `json:"token"`
-	Created time.Time `json:"created"`
-	Expiry  int       `json:"expiry"`
-}
-
-func (t *token) GetToken() string {
-	return t.Token
-}
-
 func (j *jwtProvider) SecretKey() string {
-	return j.secret
+	return j.cf.HashSecret
 }
 
 func (j *jwtProvider) Generate(data tokenprovider.TokenPayload, expiry int) (tokenprovider.Token, error) {
@@ -55,49 +57,50 @@ func (j *jwtProvider) Generate(data tokenprovider.TokenPayload, expiry int) (tok
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, myClaims{
 		TokenPayloadImp{
-			UId:   data.UserId(),
-			URole: data.Role(),
+			UId: data.UserId(),
 		},
 		jwt.StandardClaims{
-			ExpiresAt: now.Local().Add(time.Second * time.Duration(expiry)).Unix(),
+			ExpiresAt: now.Local().Add(time.Minute * time.Duration(expiry)).Unix(),
 			IssuedAt:  now.Local().Unix(),
 			Id:        fmt.Sprintf("%d", now.UnixNano()),
 		},
 	})
 
-	myToken, err := t.SignedString([]byte(j.secret))
+	myToken, err := t.SignedString([]byte(j.cf.HashSecret))
 	if err != nil {
 		return nil, err
 	}
 
 	// return the token
-	return &token{
+	return &TokenImp{
 		Token:   myToken,
 		Expiry:  expiry,
 		Created: now,
 	}, nil
 }
 
-// func (j *jwtProvider) Validate(myToken string) (tokenprovider.TokenPayload, error) {
-// 	res, err := jwt.ParseWithClaims(myToken, &myClaims{}, func(token *jwt.Token) (interface{}, error) {
-// 		return []byte(j.secret), nil
-// 	})
+func (j *jwtProvider) Validate(myToken string) (tokenprovider.TokenPayload, error) {
+	res, err := jwt.ParseWithClaims(myToken, &myClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(j.cf.HashSecret), nil
+	})
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	if err != nil {
+		return nil, err
+	}
 
-// 	// validate the token
-// 	if !res.Valid {
-// 		return nil, tokenprovider.ErrInvalidToken
-// 	}
+	// validate the token
+	if !res.Valid {
+		// return nil, tokenprovider.ErrInvalidToken
+		return nil, nil
+	}
 
-// 	claims, ok := res.Claims.(*myClaims)
+	claims, ok := res.Claims.(*myClaims)
 
-// 	if !ok {
-// 		return nil, tokenprovider.ErrInvalidToken
-// 	}
+	if !ok {
+		// return nil, tokenprovider.ErrInvalidToken
+		return nil, nil
+	}
 
-// 	// return the token
-// 	return claims.Payload, nil
-// }
+	// return the token
+	return claims.Payload, nil
+}
