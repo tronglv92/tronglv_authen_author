@@ -52,7 +52,23 @@ func (p *oauthHandler) Register() http.HandlerFunc {
 
 func (p *oauthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var req request.LoginReq
+		if err := httpx.ParseJsonBody(r, &req); err != nil {
+			response.Error(r.Context(), w, err)
+			return
+		}
 
+		if err := req.Validate(r.Context()); err != nil {
+			response.Error(r.Context(), w, err)
+			return
+		}
+
+		resp, err := p.userSvc.Login(r.Context(), req)
+		if err != nil {
+			response.Error(r.Context(), w, err)
+			return
+		}
+		response.OkJson(r.Context(), w, resp, nil)
 	}
 }
 

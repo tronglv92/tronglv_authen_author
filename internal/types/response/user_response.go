@@ -29,3 +29,9 @@ type RegisterResponse struct {
 	RefreshToken *TokenResponse `json:"refresh_token"`
 	User         *UserResponse  `json:"user"`
 }
+
+type LoginResponse struct {
+	AccessToken  *TokenResponse `json:"access_token"`
+	RefreshToken *TokenResponse `json:"refresh_token"`
+	User         *UserResponse  `json:"user"`
+}

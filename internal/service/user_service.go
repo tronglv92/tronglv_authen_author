@@ -15,6 +15,7 @@ import (
 
 type UserService interface {
 	Register(ctx context.Context, input request.RegisterReq) (*response.RegisterResponse, error)
+	Login(ctx context.Context, input request.LoginReq) (*response.LoginResponse, error)
 }
 
 type userSvcImpl struct {
@@ -80,6 +81,43 @@ func (s *userSvcImpl) Register(ctx context.Context, input request.RegisterReq) (
 
 	return &response.RegisterResponse{
 		User:         response.UserMapToResponse(resp),
+		AccessToken:  response.TokenMapToResponse(accessToken),
+		RefreshToken: response.TokenMapToResponse(refreshToken),
+	}, nil
+}
+
+// 1. Find user, email
+// 2. Hash pass from input and compare with pass in db
+// 3. Provider: issue JWT token for client
+// 3.1 Access token and refresh token
+// 4. Return tokens
+func (s *userSvcImpl) Login(ctx context.Context, input request.LoginReq) (*response.LoginResponse, error) {
+	user, err := s.userRepo.First(ctx, s.userRepo.WithEmail(input.Email))
+	if err != nil {
+		return nil, errors.InternalServerReason("Email or password invalid!")
+	}
+
+	passHashed := util.Hash(input.Password + user.Salt)
+
+	if user.Password != passHashed {
+		return nil, errors.InternalServerReason("Email or password invalid!")
+	}
+
+	payload := &jwt.TokenPayloadImp{
+		UId: user.Id,
+	}
+
+	accessToken, err := s.jwtProvider.Generate(payload, s.reg.Config.JWT.AccessTokenLifespan)
+	if err != nil {
+		return nil, errors.BadRequest(err)
+	}
+
+	refreshToken, err := s.jwtProvider.Generate(payload, s.reg.Config.JWT.RefreshTokenLifespan)
+	if err != nil {
+		return nil, errors.BadRequest(err)
+	}
+	return &response.LoginResponse{
+		User:         response.UserMapToResponse(user),
 		AccessToken:  response.TokenMapToResponse(accessToken),
 		RefreshToken: response.TokenMapToResponse(refreshToken),
 	}, nil
