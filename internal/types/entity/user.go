@@ -13,3 +13,6 @@ type User struct {
 func (User) TableName() string {
 	return "users"
 }
+func (u User) GetSalt() string {
+	return u.Salt
+}

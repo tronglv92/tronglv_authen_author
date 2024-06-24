@@ -16,6 +16,7 @@ import (
 type UserService interface {
 	Register(ctx context.Context, input request.RegisterReq) (*response.RegisterResponse, error)
 	Login(ctx context.Context, input request.LoginReq) (*response.LoginResponse, error)
+	Profile(ctx context.Context) (*response.UserResponse, error)
 }
 
 type userSvcImpl struct {
@@ -66,7 +67,7 @@ func (s *userSvcImpl) Register(ctx context.Context, input request.RegisterReq) (
 	}
 
 	payload := &jwt.TokenPayloadImp{
-		UId: resp.Id,
+		UId: resp.UId,
 	}
 
 	accessToken, err := s.jwtProvider.Generate(payload, s.reg.Config.JWT.AccessTokenLifespan)
@@ -104,7 +105,7 @@ func (s *userSvcImpl) Login(ctx context.Context, input request.LoginReq) (*respo
 	}
 
 	payload := &jwt.TokenPayloadImp{
-		UId: user.Id,
+		UId: user.UId,
 	}
 
 	accessToken, err := s.jwtProvider.Generate(payload, s.reg.Config.JWT.AccessTokenLifespan)
@@ -121,4 +122,8 @@ func (s *userSvcImpl) Login(ctx context.Context, input request.LoginReq) (*respo
 		AccessToken:  response.TokenMapToResponse(accessToken),
 		RefreshToken: response.TokenMapToResponse(refreshToken),
 	}, nil
+}
+
+func (s *userSvcImpl) Profile(ctx context.Context) (*response.UserResponse, error) {
+	return nil, nil
 }

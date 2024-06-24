@@ -6,6 +6,7 @@ import (
 	"github/tronglv_authen_author/helper/httpc"
 )
 
+// xem xoa class nay
 type UserResponse struct {
 	Result    string   `json:"result,omitempty"`
 	Data      userData `json:"data"`

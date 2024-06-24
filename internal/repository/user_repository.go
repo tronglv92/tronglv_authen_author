@@ -16,6 +16,7 @@ type userRepo struct {
 type UserRepository interface {
 	First(ctx context.Context, opts ...baseRepo.QueryOpt) (*entity.User, error)
 	WithEmail(email string) baseRepo.QueryOpt
+	WithUID(uid string) baseRepo.QueryOpt
 	CreateWithReturn(ctx context.Context, entity *entity.User) (*entity.User, error)
 }
 
@@ -28,5 +29,11 @@ func NewUserRepository(db db.Database) UserRepository {
 func (r *userRepo) WithEmail(email string) baseRepo.QueryOpt {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("email=?", email)
+	}
+}
+
+func (r *userRepo) WithUID(uid string) baseRepo.QueryOpt {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("uid=?", uid)
 	}
 }

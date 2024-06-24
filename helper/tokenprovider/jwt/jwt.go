@@ -11,10 +11,10 @@ import (
 )
 
 type TokenPayloadImp struct {
-	UId int32
+	UId string
 }
 
-func (p TokenPayloadImp) UserId() int32 {
+func (p TokenPayloadImp) UserId() string {
 	return p.UId
 }
 

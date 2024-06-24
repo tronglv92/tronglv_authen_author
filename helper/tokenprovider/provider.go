@@ -9,7 +9,7 @@ type Provider interface {
 }
 
 type TokenPayload interface {
-	UserId() int32
+	UserId() string
 }
 
 type Token interface {

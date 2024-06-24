@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+
 	"github/tronglv_authen_author/helper/auth"
 	"github/tronglv_authen_author/helper/errors"
 	"github/tronglv_authen_author/helper/locale"
@@ -14,6 +15,7 @@ import (
 type AuthMiddleware struct {
 	authSvc auth.Validate
 }
+
 
 func NewAuthMiddleware(opts ...auth.Option) *AuthMiddleware {
 	return &AuthMiddleware{

@@ -8,13 +8,14 @@ import (
 	"github/tronglv_authen_author/helper/client"
 	"github/tronglv_authen_author/helper/client/identity"
 	"github/tronglv_authen_author/helper/define"
+
 	"github/tronglv_authen_author/helper/util/token"
 )
 
 type (
 	Validate interface {
 		Validate(ctx context.Context, tkn string) (AuthData, error)
-		RemoteValidate(ctx context.Context, tkn string) (AuthData, error)
+		// RemoteValidate(ctx context.Context, tkn string) (AuthData, error)
 		LocalValidate(ctx context.Context, tkn string) (AuthData, error)
 		AssignToContext(ctx context.Context, u AuthData) context.Context
 	}
@@ -48,6 +49,12 @@ func WithGatewayUrl(url string) Option {
 }
 
 func WithClient(idt *identity.Client) Option {
+	return func(m *AuthOption) {
+		m.idtClient = idt
+	}
+}
+
+func WithUserRepo(idt *identity.Client) Option {
 	return func(m *AuthOption) {
 		m.idtClient = idt
 	}
@@ -111,6 +118,11 @@ func (s *authSvc) LocalValidate(ctx context.Context, tkn string) (AuthData, erro
 		return NewAuthData(tkn, nil, ult), nil
 	}
 	fmt.Println("vao trong nay tkn: ", tkn)
+
+	// local User service
+
+	// rest User service
+
 	// rst := NewUserService(util.ServiceName(ctx), s.gatewayUrl)
 	// user, err := rst.Auth(ctx, tkn)
 	// if err != nil {

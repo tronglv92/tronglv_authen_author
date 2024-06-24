@@ -72,6 +72,27 @@ func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
 					Path:    fmt.Sprintf("%s/register", path),
 					Handler: h.Register(),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/login", path),
+					Handler: h.Login(),
+				},
+			}...,
+		),
+		rest.WithPrefix(RestPrefix),
+	)
+
+	svr.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{
+				svc.AuthMiddleware,
+			},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    fmt.Sprintf("%s/profile", path),
+					Handler: h.Profile(),
+				},
 			}...,
 		),
 		rest.WithPrefix(RestPrefix),
