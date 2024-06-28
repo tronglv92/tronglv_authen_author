@@ -85,12 +85,12 @@ func registerOAuthHandler(svr *rest.Server, svc *registry.ServiceContext) {
 	svr.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{
-				svc.AuthMiddleware,
+				svc.AuthInternalMiddleware,
 			},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    fmt.Sprintf("%s/profile", path),
+					Path:    fmt.Sprintf("%s/me", path),
 					Handler: h.Profile(),
 				},
 			}...,

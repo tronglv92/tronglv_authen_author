@@ -9,6 +9,7 @@ import (
 
 	mdh "github/tronglv_authen_author/helper/server/http/middleware"
 	"github/tronglv_authen_author/internal/config"
+	"github/tronglv_authen_author/internal/middleware"
 	rp "github/tronglv_authen_author/internal/repository"
 	"github/tronglv_authen_author/internal/types/entity"
 
@@ -17,15 +18,16 @@ import (
 )
 
 type ServiceContext struct {
-	Config         config.Config
-	Fosite         fosite.OAuth2Provider
-	CacheClient    cache.Cache
-	ClientRepo     rp.ClientRepository
-	PermissionRepo rp.PermissionRepository
-	ClientRoleRepo rp.ClientRoleRepository
-	UserRepo       rp.UserRepository
-	JwtProvider    tokenprovider.Provider
-	AuthMiddleware rest.Middleware
+	Config                 config.Config
+	Fosite                 fosite.OAuth2Provider
+	CacheClient            cache.Cache
+	ClientRepo             rp.ClientRepository
+	PermissionRepo         rp.PermissionRepository
+	ClientRoleRepo         rp.ClientRoleRepository
+	UserRepo               rp.UserRepository
+	JwtProvider            tokenprovider.Provider
+	AuthMiddleware         rest.Middleware
+	AuthInternalMiddleware rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -35,6 +37,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		db.WithGormMigrate(entity.RegisterMigrate()),
 		db.WithCache(cacheClient),
 	)
+	userRepo := rp.NewUserRepository(sqlConn)
 
 	return &ServiceContext{
 		Config:         c,
@@ -43,9 +46,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ClientRepo:     rp.NewClientRepository(sqlConn),
 		PermissionRepo: rp.NewPermissionRepository(sqlConn),
 		ClientRoleRepo: rp.NewClientRoleRepository(sqlConn),
-		UserRepo:       rp.NewUserRepository(sqlConn),
+		UserRepo:       userRepo,
 		JwtProvider:    jwt.NewTokenJWTProvider(c.JWT),
 		AuthMiddleware: mdh.NewAuthMiddleware(
 			auth.WithPublicKey(c.OAuth.PublicKey)).Handle,
+		AuthInternalMiddleware: middleware.NewAuthInternalMiddleware(userRepo, c.JWT.HashSecret).Handle,
 	}
 }

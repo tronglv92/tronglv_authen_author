@@ -3,6 +3,7 @@ package errors
 import (
 	"fmt"
 	"github/tronglv_authen_author/helper/locale"
+	"net/http"
 
 	"gorm.io/gorm"
 )
@@ -126,4 +127,7 @@ func WithReason(reason string) Option {
 	return func(f *errorSvc) {
 		f.Reason = reason
 	}
+}
+func Forbidden(err error, opts ...Option) Error {
+	return New(http.StatusForbidden, err, opts...)
 }
